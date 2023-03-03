@@ -1,5 +1,5 @@
 # mysqld-integration-test
-![](https://img.shields.io/pypi/v/mysqld-integration-test.svg) ![](https://img.shields.io/badge/status-alpha-yellow) ![](https://github.com/jasondcamp/mysqld-integration-test/actions/workflows/mysqld-integration-test.yml/badge.svg)  ![](https://img.shields.io/pypi/pyversions/mysqld-integration-test.svg)
+![](https://img.shields.io/pypi/v/mysqld-integration-test.svg) ![](https://img.shields.io/badge/status-alpha-red) ![](https://github.com/jasondcamp/mysqld-integration-test/actions/workflows/mysqld-integration-test.yml/badge.svg)  ![](https://img.shields.io/pypi/pyversions/mysqld-integration-test.svg)
 
 ![](https://api.codeclimate.com/v1/badges/e5505727f2fa988debcb/maintainability) ![](https://api.codeclimate.com/v1/badges/e5505727f2fa988debcb/test_coverage)
 
