@@ -1,4 +1,4 @@
-name: Pyway test
+name: mysqld-integration-test test
 
 on: [push]
 
