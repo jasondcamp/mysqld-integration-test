@@ -1,4 +1,4 @@
-name: mysqld-integration-test test
+name: mysqld-integration-test Testing
 
 on: [push]
 
