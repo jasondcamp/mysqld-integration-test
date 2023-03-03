@@ -1,13 +1,12 @@
-name: mysqld-integration-test coverage
+name: mysqld-integration-test Coverage
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
