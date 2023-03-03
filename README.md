@@ -1,5 +1,5 @@
 # mysqld-integration-test
-![](https://img.shields.io/pypi/v/mysqld-integration-test.svg) ![](https://img.shields.io/badge/status-alpha-yellow) ![](https://img.shields.io/pypi/pyversions/mysqld-integration-test.svg)
+![](https://img.shields.io/pypi/v/mysqld-integration-test.svg) ![](https://img.shields.io/badge/status-alpha-yellow) ![](https://github.com/jasondcamp/mysqld-integration-test/actions/workflows/mysqld-integration-test.yml/badge.svg)  ![](https://img.shields.io/pypi/pyversions/mysqld-integration-test.svg)
 
 ## Overview
 mysqld-integration-test is a python module that creates a temporary mysqld instance to use for testing your application. It is based on the `testing.mysqld` module which has not been updated recently.
