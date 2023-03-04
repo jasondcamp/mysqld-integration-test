@@ -1,6 +1,5 @@
 import os
 import socket
-import functools
 
 from mysqld_integration_test.log import logger
 
