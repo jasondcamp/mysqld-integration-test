@@ -3,31 +3,32 @@ import tempfile
 import shutil
 import time
 import os
-import re
 import signal
 import subprocess
-import mysql.connector
-import tempfile
 from datetime import datetime
+import mysql.connector
 
 from mysqld_integration_test.log import logger
-from mysqld_integration_test.settings import Settings
+from mysqld_integration_test.helpers import Utils
+from mysqld_integration_test import settings
 from mysqld_integration_test.settings import ConfigFile
 from mysqld_integration_test.settings import ConfigInstance
 from mysqld_integration_test.version import __version__
 
 class Mysqld:
-    def __init__(self, **kwargs): # config='mysqld-integration-test.cfg'):
+    def __init__(self, **kwargs):
         logger.debug(f"mysqd-integration-test {__version__}")
 
         self.child_process = None
+        self.terminate_signal = signal.SIGTERM
+        self.owner_pid = None
         self.base_dir = tempfile.mkdtemp()
         self.config = ConfigFile(base_dir=self.base_dir)
 
         if 'config_file' in kwargs:
             self.config.general.config_file = kwargs['config_file']
 
-        self.config = Settings.parse_config(self.config, kwargs)
+        self.config = settings.parse_config(self.config, kwargs)
         logger.setlevel(self.config.general.log_level)
 
         atexit.register(self.stop)
@@ -43,11 +44,12 @@ class Mysqld:
     def run(self):
         if self.child_process:
             logger.error("Error, database already running!")
-            return  # already started
+            return False  # already started
 
         # Get the mysql variant and version
-        (variant, version, version_minor) = self.parse_version(subprocess.check_output([self.config.database.mysqld_binary, '--version']).decode("utf-8"))
-        logger.debug(f"VERSION: {variant} {version} {version_minor}")
+        (variant, version_major, version_minor) = Utils.parse_version(
+                subprocess.check_output([self.config.database.mysqld_binary, '--version']).decode("utf-8"))
+        logger.debug(f"VERSION: {variant} {version_major} {version_minor}")
 
         # Set the owner pid
         self.owner_pid = os.getpid()
@@ -65,15 +67,19 @@ class Mysqld:
 
         # Initialize database files
         logger.debug("Initializing databases with mysql_install_db")
-        subprocess.Popen([self.config.database.mysql_install_db_binary, f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}", f"--datadir={self.config.dirs.data_dir}"] , stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
+        subprocess.Popen([self.config.database.mysql_install_db_binary,
+            f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
+            f"--datadir={self.config.dirs.data_dir}"] ,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT).communicate()
 
         # Start up the database
         try:
             logger.debug("Starting mysql")
-            self.mysql_command_line = [self.config.database.mysqld_binary, f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}"]
-            self.child_process = subprocess.Popen(self.mysql_command_line, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        except Exception as e:
-            raise RuntimeError('failed to start %s: %r' % (self.name, e))
+            mysql_command_line = [self.config.database.mysqld_binary, f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}"]
+            self.child_process = subprocess.Popen(mysql_command_line, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception as exc:
+            raise RuntimeError(f"Failed to start mysqld: {exc}")
         else:
             try:
                 self.wait_booting()
@@ -84,34 +90,48 @@ class Mysqld:
         # MariaDB 10 requires that you log in as the user that is running the mysql instance and reset the root pw
         # Set password
         # Get the current user
-        if variant == "mariadb" and version >= 10:
+        if variant == "mariadb" and version_major >= 10:
             logger.debug("Detected MariaDB >= 10: Resetting password")
-            current_user = os.getlogin()
-            cnx = mysql.connector.connect(user=current_user, unix_socket=self.config.database.socket_file,
-                                  host=self.config.database.host, port=self.config.database.port)
-            cursor = cnx.cursor()
-            cursor.execute(f"ALTER USER '{self.config.database.username}'@'localhost' IDENTIFIED BY '{self.config.database.password}';")
-            cursor.execute("FLUSH PRIVILEGES;")
-            cnx.commit()
-            cursor.close()
-            cnx.close()
+            self.reset_password_current_user()
 
         # create test database
-        cnx = mysql.connector.connect(user=current_user, unix_socket=self.config.database.socket_file,
-                              host=self.config.database.host, port=self.config.database.port)
+        self.create_test_database()
+
+        # Return specifics the user can use to connect to the test instance
+        instance_config = ConfigInstance({
+                'host': self.config.database.host,
+                'port': self.config.database.port,
+                'username': self.config.database.username,
+                'password': self.config.database.password,
+                'socket_file': self.config.database.socket_file})
+
+        return instance_config
+
+
+    def reset_password_current_user(self):
+        current_user = os.getlogin()
+        cnx = mysql.connector.connect(user=current_user,
+                                      unix_socket=self.config.database.socket_file,
+                                      host=self.config.database.host,
+                                      port=self.config.database.port)
+        cursor = cnx.cursor()
+        cursor.execute(f"ALTER USER '{self.config.database.username}'@'localhost' IDENTIFIED BY '{self.config.database.password}';")
+        cursor.execute("FLUSH PRIVILEGES;")
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+
+
+    def create_test_database(self):
+        cnx = mysql.connector.connect(user=self.config.database.username,
+                                      password=self.config.database.password,
+                                      host=self.config.database.host,
+                                      port=self.config.database.port)
         cursor = cnx.cursor()
         cursor.execute('CREATE DATABASE IF NOT EXISTS test')
         cnx.commit()
         cursor.close()
         cnx.close()
-
-        # Return specifics the user can use to connect to the test instance
-        instance_config = ConfigInstance()
-        instance_config.host = self.config.database.host
-        instance_config.port = self.config.database.port
-        instance_config.username = self.config.database.username
-        instance_config.password = self.config.database.password
-        return(instance_config)
 
 
     def stop(self, _signal=signal.SIGTERM):
@@ -145,7 +165,7 @@ class Mysqld:
 
 
     def write_mycnf(self):
-        with open(os.path.join(self.config.dirs.etc_dir, 'my.cnf'), 'wt') as my_cnf:
+        with open(os.path.join(self.config.dirs.etc_dir, 'my.cnf'), 'wt', encoding='utf-8') as my_cnf:
             my_cnf.write("[mysqld]" + "\n")
             my_cnf.write(f"bind-address={self.config.database.host}" + "\n")
             my_cnf.write(f"port={self.config.database.port}" + "\n")
@@ -171,17 +191,3 @@ class Mysqld:
 
     def is_server_available(self):
         return os.path.exists(self.config.database.pid_file)
-
-
-    def parse_version(self, version):
-        version_info = (re.findall(r"Ver (\d+)\.([0-9.]+)\-(\w+)", version))
-        version_major = int(version_info[0][0])
-        version_minor = version_info[0][1]
-        version_variant = version_info[0][2].lower()
-
-        if version_major == 8:
-            version_variant = "mysql"
-
-        return (version_variant, version_major, version_minor)
-
-

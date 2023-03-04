@@ -1,19 +1,11 @@
-import os
-import sys
 import logging
-from datetime import date
-
 from mysqld_integration_test.exceptions import InvalidLogLevel
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+COLOR_OKBLUE = '\033[94m'
+COLOR_OKGREEN = '\033[92m'
+COLOR_WARNING = '\033[93m'
+COLOR_FAIL = '\033[91m'
+COLOR_ENDC = '\033[0m'
 
 class _Log():
     def __init__(self):
@@ -27,22 +19,19 @@ class _Log():
 
     def info(self, msg):
         if self.logger:
-            self.logger.info(self._colored(msg, bcolors.OKBLUE))
+            self.logger.info(_colored(msg, COLOR_OKBLUE))
 
     def error(self, msg):
         if self.logger:
-            self.logger.error(self._colored(msg, bcolors.FAIL))
+            self.logger.error(_colored(msg, COLOR_FAIL))
 
     def warn(self, msg):
         if self.logger:
-            self.logger.warn(self._colored(msg, bcolors.WARNING))
-
-    def _colored(self, msg, color):
-        return f"{color}{msg}{bcolors.ENDC}"
+            self.logger.warn(_colored(msg, COLOR_WARNING))
 
     def success(self, msg):
         if self.logger:
-            self.logger.info(self._colored(msg, bcolors.OKGREEN))
+            self.logger.info(_colored(msg, COLOR_OKGREEN))
 
     def setlevel(self, log_level):
         if log_level == "INFO":
@@ -55,5 +44,8 @@ class _Log():
             self.logger.setLevel(logging.WARN)
         else:
             raise InvalidLogLevel
+
+def _colored(msg, color):
+    return f"{color}{msg}{COLOR_ENDC}"
 
 logger = _Log()
