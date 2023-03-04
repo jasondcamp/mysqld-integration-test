@@ -10,7 +10,7 @@ import mysql.connector
 
 from mysqld_integration_test.log import logger
 from mysqld_integration_test.helpers import Utils
-from mysqld_integration_test.settings import Settings
+from mysqld_integration_test import settings
 from mysqld_integration_test.settings import ConfigFile
 from mysqld_integration_test.settings import ConfigInstance
 from mysqld_integration_test.version import __version__
@@ -28,7 +28,7 @@ class Mysqld:
         if 'config_file' in kwargs:
             self.config.general.config_file = kwargs['config_file']
 
-        self.config = Settings.parse_config(self.config, kwargs)
+        self.config = settings.parse_config(self.config, kwargs)
         logger.setlevel(self.config.general.log_level)
 
         atexit.register(self.stop)
@@ -92,33 +92,46 @@ class Mysqld:
         # Get the current user
         if variant == "mariadb" and version_major >= 10:
             logger.debug("Detected MariaDB >= 10: Resetting password")
-            current_user = os.getlogin()
-            cnx = mysql.connector.connect(user=current_user, unix_socket=self.config.database.socket_file,
-                                  host=self.config.database.host, port=self.config.database.port)
-            cursor = cnx.cursor()
-            cursor.execute(f"ALTER USER '{self.config.database.username}'@'localhost' IDENTIFIED BY '{self.config.database.password}';")
-            cursor.execute("FLUSH PRIVILEGES;")
-            cnx.commit()
-            cursor.close()
-            cnx.close()
+            self.reset_password_current_user()
 
         # create test database
-        cnx = mysql.connector.connect(user=current_user, unix_socket=self.config.database.socket_file,
-                              host=self.config.database.host, port=self.config.database.port)
+        self.create_test_database()
+
+        # Return specifics the user can use to connect to the test instance
+        instance_config = ConfigInstance({
+                'host': self.config.database.host,
+                'port': self.config.database.port,
+                'username': self.config.database.username,
+                'password': self.config.database.password,
+                'socket_file': self.config.database.socket_file})
+
+        return instance_config
+
+
+    def reset_password_current_user(self):
+        current_user = os.getlogin()
+        cnx = mysql.connector.connect(user=current_user,
+                                      unix_socket=self.config.database.socket_file,
+                                      host=self.config.database.host,
+                                      port=self.config.database.port)
+        cursor = cnx.cursor()
+        cursor.execute(f"ALTER USER '{self.config.database.username}'@'localhost' IDENTIFIED BY '{self.config.database.password}';")
+        cursor.execute("FLUSH PRIVILEGES;")
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+
+
+    def create_test_database(self):
+        cnx = mysql.connector.connect(user=self.config.database.username,
+                                      password=self.config.database.password,
+                                      host=self.config.database.host,
+                                      port=self.config.database.port)
         cursor = cnx.cursor()
         cursor.execute('CREATE DATABASE IF NOT EXISTS test')
         cnx.commit()
         cursor.close()
         cnx.close()
-
-        # Return specifics the user can use to connect to the test instance
-        instance_config = ConfigInstance()
-        instance_config.host = self.config.database.host
-        instance_config.port = self.config.database.port
-        instance_config.username = self.config.database.username
-        instance_config.password = self.config.database.password
-
-        return instance_config
 
 
     def stop(self, _signal=signal.SIGTERM):

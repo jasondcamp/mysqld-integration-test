@@ -7,9 +7,9 @@ from mysqld_integration_test.helpers import Utils
 
 #ARGS_DATABASE = [ 'username', 'password', 'host', 'port', 'mysql_install_db_binary', 'mysqld_binary' ]
 #ARGS_GENERAL = [ 'timeout_start', 'timeout_stop', 'log_level', 'config_file']
-args = {}
-args['database'] = [ 'username', 'password', 'host', 'port', 'mysql_install_db_binary', 'mysqld_binary' ]
-args['general'] = [ 'timeout_start', 'timeout_stop', 'log_level', 'config_file' ]
+config_settings = {}
+config_settings['database'] = [ 'username', 'password', 'host', 'port', 'mysql_install_db_binary', 'mysqld_binary' ]
+config_settings['general'] = [ 'timeout_start', 'timeout_stop', 'log_level', 'config_file' ]
 
 def rgetattr(obj, attr, *args):
     def _getattr(obj, attr):
@@ -23,29 +23,28 @@ def rsetattr(obj, attr, val):
 
 
 def merge_configs(config, section, section_cfg):
-    for arg in args[section]:
+    for arg in config_settings[section]:
         if arg in section_cfg:
             rsetattr(config, f"{section}.{arg}", section_cfg[arg])
 
     return config
 
 
-class Settings():
-    def parse_config(config, config_args):
-        # See if there is a config file
-        if os.path.exists(config.general.config_file):
-            with open(config.general.config_file, "r", encoding='utf-8') as ymlfile:
-                cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+def parse_config(config, config_args):
+    # See if there is a config file
+    if os.path.exists(config.general.config_file):
+        with open(config.general.config_file, "r", encoding='utf-8') as ymlfile:
+            cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
-            # Merge config together with args
-            for section in args:
-                config = merge_configs(config, section, cfg[section])
+        # Merge config together with args
+        for section in config_settings:
+            config = merge_configs(config, section, cfg[section])
 
-        # Merge in any class arguments
-        for section in args:
-            config = merge_configs(config, section, config_args)
+    # Merge in any class arguments
+    for section in config_settings:
+        config = merge_configs(config, section, config_args)
 
-        return config
+    return config
 
 
 class ConfigAttribute():
@@ -78,9 +77,9 @@ class ConfigFile():
 
 
 class ConfigInstance():
-    def __init__(self):
-        self.host = None
-        self.port = None
-        self.username = None
-        self.password = None
-        self.socket_file = None
+    def __init__(self, args):
+        self.host = args['host']
+        self.port = args['port']
+        self.username = args['username']
+        self.password = args['password']
+        self.socket_file = args['socket_file']
