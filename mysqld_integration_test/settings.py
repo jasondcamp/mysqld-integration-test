@@ -11,8 +11,8 @@ class Settings():
     def __init__(self, args):
         self.args = args
 
-    def parse_config_file(configfile):
-        config = ConfigFile()
+    def parse_config_file(configfile, base_dir):
+        config = ConfigFile(base_dir)
 
         # See if there is a config file
         if os.path.exists(configfile):
@@ -49,14 +49,13 @@ class ConfigAttribute(object):
     pass
 
 class ConfigFile():
-    def __init__(self):
-        _base_dir = default=tempfile.mkdtemp()
+    def __init__(self, base_dir):
 
         self.dirs = ConfigAttribute()
-        self.dirs.base_dir = _base_dir
-        self.dirs.data_dir = os.path.join(_base_dir, 'var')
-        self.dirs.etc_dir = os.path.join(_base_dir, 'etc')
-        self.dirs.tmp_dir = os.path.join(_base_dir, 'tmp')
+        self.dirs.base_dir = base_dir
+        self.dirs.data_dir = os.path.join(base_dir, 'var')
+        self.dirs.etc_dir = os.path.join(base_dir, 'etc')
+        self.dirs.tmp_dir = os.path.join(base_dir, 'tmp')
 
         self.database = ConfigAttribute()
         self.database.host = "127.0.0.1"
