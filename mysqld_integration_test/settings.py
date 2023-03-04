@@ -2,45 +2,49 @@ import os
 import yaml
 import sys
 import tempfile
+import functools
 
 from mysqld_integration_test.version import __version__
 from mysqld_integration_test.helpers import Utils
 
-class Settings():
+def rgetattr(obj, attr, *args):
+    def _getattr(obj, attr):
+        return getattr(obj, attr, *args)
+    return functools.reduce(_getattr, [obj] + attr.split('.'))
 
+
+def rsetattr(obj, attr, val):
+    pre, _, post = attr.rpartition('.')
+    return setattr(rgetattr(obj, pre) if pre else obj, post, val)
+
+
+class Settings():
     def __init__(self, args):
         self.args = args
 
-    def parse_config_file(configfile, base_dir):
-        config = ConfigFile(base_dir)
+    @classmethod
+    def parse_config(cls, config, config_args):
+        args = {}
+        args['database'] = [ 'username', 'password', 'host', 'port', 'mysql_install_db_binary', 'mysqld_binary' ]
+        args['general'] = [ 'timeout_start', 'timeout_stop', 'log_level', 'config_file' ]
 
         # See if there is a config file
-        if os.path.exists(configfile):
-            with open(configfile, "r", encoding='utf-8') as ymlfile:
+        if os.path.exists(config.general.config_file):
+            with open(config.general.config_file, "r", encoding='utf-8') as ymlfile:
                 cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
             # Merge config together with args
-            if 'database' in cfg:
-                if 'username' in cfg['database']:
-                    config.database.username = cfg['database']['username']
-                if 'password' in cfg['database']:
-                    config.database.password = cfg['database']['password']
-                if 'host' in cfg['database']:
-                    config.database.host = cfg['database']['host']
-                if 'port' in cfg['database']:
-                    config.database.port = cfg['database']['port']
-                if 'mysql_install_db_binary' in cfg['database']:
-                    config.database.mysql_install_db_binary = cfg['database']['mysql_install_db_binary']
-                if 'mysqld_binary' in cfg['database']:
-                    config.database.mysqld_binary = cfg['database']['mysqld_binary']
+            for section in args:
+                for arg in args[section]:
+                    if arg in cfg[section]:
+                        # Set the value from the config file
+                        rsetattr(config, f"{section}.{arg}", cfg[section][arg])
 
-            if 'general' in cfg:
-                if 'timeout_start' in cfg['general']:
-                    config.general.timeout_start = cfg['general']['timeout_start']
-                if 'timeout_stop' in cfg['general']:
-                    config.general.timeout_stop = cfg['general']['timeout_stop']
-                if 'log_level' in cfg['general']:
-                    config.general.log_level = cfg['general']['log_level']
+        # Merge in any class arguments
+        for section in args:
+            for arg in args[section]:
+                if arg in config_args:
+                    rsetattr(config, f"{section}.{arg}", config_args[arg])
 
         return config
 
@@ -48,14 +52,14 @@ class Settings():
 class ConfigAttribute(object):
     pass
 
+
 class ConfigFile():
     def __init__(self, base_dir):
-
         self.dirs = ConfigAttribute()
         self.dirs.base_dir = base_dir
-        self.dirs.data_dir = os.path.join(base_dir, 'var')
-        self.dirs.etc_dir = os.path.join(base_dir, 'etc')
-        self.dirs.tmp_dir = os.path.join(base_dir, 'tmp')
+        self.dirs.data_dir = os.path.join(self.dirs.base_dir, 'var')
+        self.dirs.etc_dir = os.path.join(self.dirs.base_dir, 'etc')
+        self.dirs.tmp_dir = os.path.join(self.dirs.base_dir, 'tmp')
 
         self.database = ConfigAttribute()
         self.database.host = "127.0.0.1"
@@ -71,6 +75,8 @@ class ConfigFile():
         self.general.timeout_start = 30
         self.general.timeout_stop = 30
         self.general.log_level = "INFO"
+        self.general.config_file = 'mysqld-integration-test.cfg'
+
 
 class ConfigInstance():
     def __init__(self):

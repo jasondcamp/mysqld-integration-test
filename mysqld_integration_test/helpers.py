@@ -16,6 +16,7 @@ class Utils():
 
         raise RuntimeError("command not found: %s" % name)
 
+
     @staticmethod
     def get_unused_port():
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,5 +25,4 @@ class Utils():
         sock.close()
 
         return port
-
 
