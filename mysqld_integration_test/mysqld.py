@@ -3,6 +3,7 @@ import tempfile
 import shutil
 import time
 import os
+import re
 import signal
 import subprocess
 import mysql.connector
@@ -11,16 +12,22 @@ from datetime import datetime
 
 from mysqld_integration_test.log import logger
 from mysqld_integration_test.settings import Settings
+from mysqld_integration_test.settings import ConfigFile
 from mysqld_integration_test.settings import ConfigInstance
 from mysqld_integration_test.version import __version__
 
 class Mysqld:
-    def __init__(self, config='mysqld-integration-test.cfg'):
+    def __init__(self, **kwargs): # config='mysqld-integration-test.cfg'):
         logger.debug(f"mysqd-integration-test {__version__}")
 
         self.child_process = None
         self.base_dir = tempfile.mkdtemp()
-        self.config = Settings.parse_config_file(config, self.base_dir)
+        self.config = ConfigFile(base_dir=self.base_dir)
+
+        if 'config_file' in kwargs:
+            self.config.general.config_file = kwargs['config_file']
+
+        self.config = Settings.parse_config(self.config, kwargs)
         logger.setlevel(self.config.general.log_level)
 
         atexit.register(self.stop)
@@ -167,6 +174,14 @@ class Mysqld:
 
 
     def parse_version(self, version):
-        return ('mariadb', 10, '5.16')
+        version_info = (re.findall(r"Ver (\d+)\.([0-9.]+)\-(\w+)", version))
+        version_major = int(version_info[0][0])
+        version_minor = version_info[0][1]
+        version_variant = version_info[0][2].lower()
+
+        if version_major == 8:
+            version_variant = "mysql"
+
+        return (version_variant, version_major, version_minor)
 
 

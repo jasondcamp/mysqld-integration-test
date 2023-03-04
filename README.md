@@ -4,7 +4,7 @@
 ![](https://api.codeclimate.com/v1/badges/e5505727f2fa988debcb/maintainability) ![](https://api.codeclimate.com/v1/badges/e5505727f2fa988debcb/test_coverage)
 
 ## Overview
-mysqld-integration-test is a python module that creates a temporary mysqld instance to use for testing your application. It is based on the `testing.mysqld` module which has not been updated recently.
+mysqld-integration-test is a python module that creates a temporary mysqld instance to use for testing your application. It is based on the `testing.mysqld` module which has not been updated recently. You will need a working MySQL or MariaDB install. It does not have to be running, the binaries are needed.
 
 ## Download and Install
 To install use pip:
@@ -16,6 +16,21 @@ Or clone the repo:
     $ git clone https://github.com/jasondcamp/mysqld-integration-test.git
 
 ## Configuration
+### Class arguments
+The following class arguments can be overridden by passing them in, these arguments will override the config file arguments.
+| Argument | Description | Default |
+| --------------- | -------------- | -------------- |
+|username|Username for database|root|
+|password|Password for database|root|
+|host|Host to bind|127.0.0.1|
+|port|Port to bind|random|
+|mysql_install_db_binary|Location of mysql_install_db|Searches paths|
+|mysqld_binary|Location of mysqld|Searches paths|
+|timeout_start|Timeout to start MySQL|30 seconds|
+|timeout_stop|Timeout to stop MySQL|30 seconds|
+|log_level|Log level|INFO|
+|config_file|Configuration file|mysqld-integration-test.cfg|
+
 ### mysqld-integration-test config file
 Default settings can be overridden in  a config file. The default name is `mysqld-integration-test.cfg` in the local directory and can be overridden by passing in the `config` option to the instance creation.
 

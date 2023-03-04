@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mysqld-integration-test"
-version = "0.0.7"
+version = "0.0.8"
 authors = [{name = "Jason Camp", email = "me@jason.camp"}]
 license = {text = "Apache"}
 description = "mysqld-integration-test is a python module that creates a temporary mysqld instance to use for testing your application."
