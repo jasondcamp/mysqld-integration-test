@@ -27,18 +27,3 @@ class Utils():
 
         return port
 
-
-#    @staticmethod
-    @classmethod
-    def rgetattr(cls, obj, attr, *args):
-        def _getattr(obj, attr):
-            return getattr(obj, attr, *args)
-        return functools.reduce(_getattr, [obj] + attr.split('.'))
-
-
-#    @staticmethod
-    @classmethod
-    def rsetattr(cls, obj, attr, val):
-        pre, _, post = attr.rpartition('.')
-        return setattr(rgetattr(obj, pre) if pre else obj, post, val)
-
