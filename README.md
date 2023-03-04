@@ -16,7 +16,25 @@ Or clone the repo:
     $ git clone https://github.com/jasondcamp/mysqld-integration-test.git
 
 ## Configuration
-#### mysqld-integration-test environment variables and command line options
+### mysqld-integration-test config file
+Default settings can be overridden in  a config file. The default name is `mysqld-integration-test.cfg` in the local directory and can be overridden by passing in the `config` option to the instance creation.
+
+####Example config
+```
+database:
+  host: '127.0.0.1'
+  port: '9999'
+  username: 'root'
+  password: 'test'
+  mysql_install_db_binary: '/usr/local/bin/mysql_install_db'
+  mysqld_binary: '/usr/sbin/mysqld'
+
+general:
+  log_level: 'DEBUG'
+  timeout_start: 30
+  timeout_stop: 30
+```
+
 
 ## Usage
 
@@ -40,7 +58,7 @@ Stops the mysql server
 mysqld.stop()
 ```
 
-### Example
+### Example Code
 
 ```
 #!/usr/bin/env python3
@@ -48,10 +66,20 @@ mysqld.stop()
 from mysqld_integration_test import Mysqld
 import mysql.connector
 
-mysqld = Mysqld()
+mysqld = Mysqld(config='/some/dir/mysqld-integration-test.cfg')
 instance = mysqld.run()
 
+# Make query to database
+cnx = mysql.connector.connect(user=instance.username, password=instance.password,
+                      host=instance.host, port=instance.port)
+cursor = cnx.cursor()
+cursor.execute(f"SHOW databases;")
 
+for db in cursor:
+   print(db[0])
+
+cursor.close()
+cnx.close()
 
 mysqld.stop()
 ```

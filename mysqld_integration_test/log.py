@@ -3,8 +3,7 @@ import sys
 import logging
 from datetime import date
 
-LOG_TO_FILE=False
-LOG_DIR="logs"
+from mysqld_integration_test.exceptions import InvalidLogLevel
 
 class bcolors:
     HEADER = '\033[95m'
@@ -16,24 +15,11 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-
 class _Log():
     def __init__(self):
-        log_dir = LOG_DIR
-        if log_dir:
-            if LOG_TO_FILE and not os.path.exists(log_dir):
-                os.makedirs(log_dir)
+        logging.debug("magic")
         self.logger = logging.getLogger('mysqld-integration-test')
-        self.logger.setLevel(logging.INFO)
-
-        now = date.today()
-#            if LOG_TO_FILE:
-#                filename = f'{os.path.abspath(log_dir)}/{now.strftime("%Y_%m_%d")}.log'
-#                hdlr = logging.FileHandler(filename)
-#                formatter = logging.Formatter("%(asctime)s - %(levelname)s: %(message)s")
-#                hdlr.setFormatter(formatter)
-#                self.logger.addHandler(hdlr)
-#        self.logger.addHandler(logging.StreamHandler(sys.stdout))
+        self.logger.setLevel(logging.ERROR)
 
     def debug(self, msg):
         if self.logger:
@@ -57,5 +43,17 @@ class _Log():
     def success(self, msg):
         if self.logger:
             self.logger.info(self._colored(msg, bcolors.OKGREEN))
+
+    def setlevel(self, log_level):
+        if log_level == "INFO":
+            self.logger.setLevel(logging.INFO)
+        elif log_level == "DEBUG":
+            self.logger.setLevel(logging.DEBUG)
+        elif log_level == 'ERROR':
+            self.logger.setLevel(logging.ERROR)
+        elif log_level == 'WARN':
+            self.logger.setLevel(logging.WARN)
+        else:
+            raise InvalidLogLevel
 
 logger = _Log()
