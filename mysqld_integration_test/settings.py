@@ -1,8 +1,6 @@
 import os
-import yaml
-import sys
-import tempfile
 import functools
+import yaml
 
 from mysqld_integration_test.version import __version__
 from mysqld_integration_test.helpers import Utils
@@ -49,7 +47,7 @@ class Settings():
         return config
 
 
-class ConfigAttribute(object):
+class ConfigAttribute():
     pass
 
 
@@ -85,4 +83,3 @@ class ConfigInstance():
         self.username = None
         self.password = None
         self.socket_file = None
-
