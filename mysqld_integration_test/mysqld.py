@@ -63,7 +63,7 @@ class Mysqld:
         try:
             logger.debug("Starting mysql")
             self.mysql_command_line = [self.config.database.mysqld_binary, f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}"]
-            self.child_process = subprocess.Popen(self.mysql_command_line, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) #, stdout=subprocess.STDOUT, stderr=subprocess.STDERR)
+            self.child_process = subprocess.Popen(self.mysql_command_line, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except Exception as e:
             raise RuntimeError('failed to start %s: %r' % (self.name, e))
         else:
