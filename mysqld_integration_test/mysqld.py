@@ -6,6 +6,7 @@ import os
 import signal
 import subprocess
 import mysql.connector
+import tempfile
 from datetime import datetime
 
 from mysqld_integration_test.log import logger
@@ -18,18 +19,18 @@ class Mysqld:
         logger.debug(f"mysqd-integration-test {__version__}")
 
         self.child_process = None
-        self.config = Settings.parse_config_file(config)
+        self.base_dir = tempfile.mkdtemp()
+        self.config = Settings.parse_config_file(config, self.base_dir)
         logger.setlevel(self.config.general.log_level)
 
         atexit.register(self.stop)
 
 
     def __del__(self):
-        if self.config:
-            logger.debug(f"Cleaning up temp dir {self.config.dirs.base_dir}")
-            # Sleep for a 1/2 sec to allow mysql to shut down
-            time.sleep(0.5)
-            shutil.rmtree(self.config.dirs.base_dir)
+        logger.debug(f"Cleaning up temp dir {self.config.dirs.base_dir}")
+        # Sleep for a 1/2 sec to allow mysql to shut down
+        time.sleep(0.5)
+        shutil.rmtree(self.base_dir)
 
 
     def run(self):

@@ -19,7 +19,7 @@ Or clone the repo:
 ### mysqld-integration-test config file
 Default settings can be overridden in  a config file. The default name is `mysqld-integration-test.cfg` in the local directory and can be overridden by passing in the `config` option to the instance creation.
 
-####Example config
+#### Example config
 ```
 database:
   host: '127.0.0.1'
