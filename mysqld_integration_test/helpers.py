@@ -1,7 +1,7 @@
 import os
 import socket
 
-from pyway.log import logger
+from mysqld_integration_test.log import logger
 
 class Utils():
 
