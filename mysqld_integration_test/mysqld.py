@@ -2,6 +2,7 @@ import atexit
 import tempfile
 import shutil
 import time
+import getpass
 import os
 import signal
 import subprocess
@@ -109,7 +110,7 @@ class Mysqld:
         return instance_config
 
     def reset_password_current_user(self):
-        current_user = os.getlogin()
+        current_user = getpass.getuser()
         cnx = mysql.connector.connect(user=current_user,
                                       unix_socket=self.config.database.socket_file,
                                       host=self.config.database.host,
