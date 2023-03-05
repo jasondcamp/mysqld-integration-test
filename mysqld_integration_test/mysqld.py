@@ -82,7 +82,7 @@ class Mysqld:
             mysqld_command_line = [self.config.database.mysqld_binary,
                                    "--initialize-insecure",
                                    f"--datadir={self.config.dirs.data_dir}",
-                                   f"--user={self.current_user}"]
+                                   f"--log-errors={os.path.join(self.config.dirs.tmp_dir, 'errors.log')}"]
             process = subprocess.Popen(mysqld_command_line,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
