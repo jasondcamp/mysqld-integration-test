@@ -23,6 +23,7 @@ class Mysqld:
         self.child_process = None
         self.terminate_signal = signal.SIGTERM
         self.owner_pid = None
+        self.current_user = getpass.getuser()
         self.base_dir = tempfile.mkdtemp()
         self.config = ConfigFile(base_dir=self.base_dir)
 
@@ -57,6 +58,7 @@ class Mysqld:
         # Make base directories
         logger.debug("Creating application directories")
         os.mkdir(self.config.dirs.tmp_dir)
+        os.chmod(self.config.dirs.tmp_dir, 0o600)
         os.mkdir(self.config.dirs.etc_dir)
         os.mkdir(self.config.dirs.data_dir)
 
@@ -74,9 +76,11 @@ class Mysqld:
                              stderr=subprocess.STDOUT).communicate()
         elif self.config.version.variant == "mysql" and self.config.version.major >= 8:
             logger.debug("Initializing databases with mysqld")
-            subprocess.Popen([self.config.database.mysqld_binary,
-                              "--initialize-insecure",
-                              "--user=mysql"],
+            mysqld_command_line = [self.config.database.mysqld_binary,
+                                   "--initialize-insecure",
+                                   f"--datadir={self.config.dirs.data_dir}",
+                                   f"--user={self.current_user}"]
+            subprocess.Popen(mysqld_command_line,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT).communicate()
 
@@ -102,8 +106,7 @@ class Mysqld:
         # Get the current user
         if self.config.version.variant == "mariadb" and self.config.version.major >= 10:
             logger.debug("Detected MariaDB >= 10: Resetting password")
-            current_user = getpass.getuser()
-            self.reset_mysqld_password(current_user)
+            self.reset_mysqld_password(self.current_user)
         elif self.config.version.variant == "mysql" and self.config.version.major >= 8:
             logger.debug("Detected MySQL >= 8: Resetting password")
             self.reset_mysqld_password('root')
@@ -181,6 +184,7 @@ class Mysqld:
             my_cnf.write(f"tmpdir={self.config.dirs.tmp_dir}" + "\n")
             my_cnf.write(f"socket={self.config.database.socket_file}" + "\n")
             my_cnf.write(f"pid-file={self.config.database.pid_file}" + "\n")
+            my_cnf.write(f"secure-file-priv={self.config.dirs.tmp_dir}" + "\n")
 
     def wait_booting(self):
         exec_at = datetime.now()
