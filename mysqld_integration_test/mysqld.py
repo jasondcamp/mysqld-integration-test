@@ -95,12 +95,8 @@ class Mysqld:
             mysql_command_line = [self.config.database.mysqld_binary,
                                   f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
                                   f"--user={self.current_user}"]
-            print(f"CMD LINE: {mysql_command_line}")
-            (s, e) = subprocess.Popen(["cat", os.path.join(self.config.dirs.etc_dir, 'my.cnf')], stdout=subprocess.STDOUT, stderr=subprocess.STDOUT).communicate()
-            print(s)
-            print(e)
             self.child_process = subprocess.Popen(mysql_command_line,
-                                                  stdout=subprocess.STDOUT,
+                                                  stdout=subprocess.PIPE,
                                                   stderr=subprocess.STDOUT)
         except Exception as exc:
             raise RuntimeError(f"Failed to start mysqld: {exc}")
