@@ -83,8 +83,8 @@ class Mysqld:
                                    f"--datadir={self.config.dirs.data_dir}",
                                    f"--user={self.current_user}"]
             process = subprocess.Popen(mysqld_command_line,
-                             stdout=logger.PIPE,
-                             stderr=logger.STDOUT)
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
             (output, error) = process.communicate()
             logger.error(f"MySQL initialization error: {error}")
 
