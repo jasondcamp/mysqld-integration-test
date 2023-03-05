@@ -27,7 +27,6 @@ def test_basedir_exists(mysqld_connect):
     assert rgetattr(mysqld_connect, 'config.dirs.base_dir') is not None
 
 
-
 # Make sure config options are not None
 @pytest.mark.config_notnone
 def test_basedir_notnone(mysqld_connect):
