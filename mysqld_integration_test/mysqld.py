@@ -38,7 +38,11 @@ class Mysqld:
         # Sleep for a 1/2 sec to allow mysql to shut down
         while self.child_process is not None:
             time.sleep(0.5)
-        shutil.rmtree(self.base_dir)
+        if os.path.exists(self.base_dir):
+            shutil.rmtree(self.base_dir)
+
+    def close(self):
+        self.__del__()
 
     def run(self):
         if self.child_process:
