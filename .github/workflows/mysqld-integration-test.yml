@@ -24,7 +24,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Install mysql server
         run: |
-          apt-get -y install mariadb-server
+          sudo apt-get -y install mariadb-server
       - name: Build and install code
         run: |
           python -m build
