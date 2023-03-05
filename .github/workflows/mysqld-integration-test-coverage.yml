@@ -23,6 +23,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Install mysql server
+        run: |
+          sudo apt-get -y install mariadb-server
       - name: Run tests
         run: |
           coverage run -m pytest
