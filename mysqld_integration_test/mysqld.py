@@ -75,7 +75,8 @@ class Mysqld:
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
             (output, error) = process.communicate()
-            logger.error(f"MySQL initialization error: {error}")
+            logger.debug(f"MySQL initialization error: {error}")
+
         elif self.config.version.variant == "mysql" and self.config.version.major >= 8:
             logger.debug("Initializing databases with mysqld")
             mysqld_command_line = [self.config.database.mysqld_binary,
@@ -86,7 +87,7 @@ class Mysqld:
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
             (output, error) = process.communicate()
-            logger.error(f"MySQL initialization error: {error}")
+            logger.debug(f"MySQL initialization error: {error}")
 
         # Start up the database
         try:

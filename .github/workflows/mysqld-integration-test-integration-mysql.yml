@@ -31,4 +31,4 @@ jobs:
           pip install dist/*.gz
       - name: Test with pytest
         run: |
-          pytest -m integration_test
+          pytest -s -m integration_test
