@@ -9,11 +9,11 @@ from datetime import datetime
 import mysql.connector
 
 from mysqld_integration_test.log import logger
-from mysqld_integration_test.helpers import Utils
 from mysqld_integration_test import settings
 from mysqld_integration_test.settings import ConfigFile
 from mysqld_integration_test.settings import ConfigInstance
 from mysqld_integration_test.version import __version__
+
 
 class Mysqld:
     def __init__(self, **kwargs):
@@ -33,14 +33,12 @@ class Mysqld:
 
         atexit.register(self.stop)
 
-
     def __del__(self):
         logger.debug(f"Cleaning up temp dir {self.config.dirs.base_dir}")
         # Sleep for a 1/2 sec to allow mysql to shut down
         while self.child_process is not None:
-            sleep(0.5)
+            time.sleep(0.5)
         shutil.rmtree(self.base_dir)
-
 
     def run(self):
         if self.child_process:
@@ -64,16 +62,19 @@ class Mysqld:
         # Initialize database files
         logger.debug("Initializing databases with mysql_install_db")
         subprocess.Popen([self.config.database.mysql_install_db_binary,
-            f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
-            f"--datadir={self.config.dirs.data_dir}"] ,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT).communicate()
+                          f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
+                          f"--datadir={self.config.dirs.data_dir}"],
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT).communicate()
 
         # Start up the database
         try:
             logger.debug("Starting mysql")
-            mysql_command_line = [self.config.database.mysqld_binary, f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}"]
-            self.child_process = subprocess.Popen(mysql_command_line, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            mysql_command_line = [self.config.database.mysqld_binary,
+                                  f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}"]
+            self.child_process = subprocess.Popen(mysql_command_line,
+                                                  stdout=subprocess.DEVNULL,
+                                                  stderr=subprocess.DEVNULL)
         except Exception as exc:
             raise RuntimeError(f"Failed to start mysqld: {exc}")
         else:
@@ -103,7 +104,6 @@ class Mysqld:
 
         return instance_config
 
-
     def reset_password_current_user(self):
         current_user = os.getlogin()
         cnx = mysql.connector.connect(user=current_user,
@@ -111,12 +111,11 @@ class Mysqld:
                                       host=self.config.database.host,
                                       port=self.config.database.port)
         cursor = cnx.cursor()
-        cursor.execute(f"ALTER USER '{self.config.database.username}'@'localhost' IDENTIFIED BY '{self.config.database.password}';")
+        cursor.execute(f"ALTER USER '{self.config.database.username}'@'localhost' IDENTIFIED BY '{self.config.database.password}';")  # noqa: E501
         cursor.execute("FLUSH PRIVILEGES;")
         cnx.commit()
         cursor.close()
         cnx.close()
-
 
     def create_test_database(self):
         cnx = mysql.connector.connect(user=self.config.database.username,
@@ -129,10 +128,8 @@ class Mysqld:
         cursor.close()
         cnx.close()
 
-
     def stop(self, _signal=signal.SIGTERM):
         self.terminate(_signal)
-
 
     def terminate(self, _signal=None):
         if self.child_process is None:
@@ -151,14 +148,13 @@ class Mysqld:
             while self.child_process.poll() is None:
                 if (datetime.now() - killed_at).seconds > self.config.general.timeout_stop:
                     self.child_process.kill()
-                    raise RuntimeError("Failed to shutdown mysql (timeout)" )
+                    raise RuntimeError("Failed to shutdown mysql (timeout)")
 
                 time.sleep(0.5)
         except OSError:
             pass
 
         self.child_process = None
-
 
     def write_mycnf(self):
         with open(os.path.join(self.config.dirs.etc_dir, 'my.cnf'), 'wt', encoding='utf-8') as my_cnf:
@@ -169,7 +165,6 @@ class Mysqld:
             my_cnf.write(f"tmpdir={self.config.dirs.tmp_dir}" + "\n")
             my_cnf.write(f"socket={self.config.database.socket_file}" + "\n")
             my_cnf.write(f"pid-file={self.config.database.pid_file}" + "\n")
-
 
     def wait_booting(self):
         exec_at = datetime.now()

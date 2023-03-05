@@ -3,12 +3,12 @@ import functools
 import yaml
 import subprocess
 
-from mysqld_integration_test.version import __version__
 from mysqld_integration_test.helpers import Utils
 
 config_settings = {}
-config_settings['database'] = [ 'username', 'password', 'host', 'port', 'mysql_install_db_binary', 'mysqld_binary' ]
-config_settings['general'] = [ 'timeout_start', 'timeout_stop', 'log_level', 'config_file' ]
+config_settings['database'] = ['username', 'password', 'host', 'port', 'mysql_install_db_binary', 'mysqld_binary']
+config_settings['general'] = ['timeout_start', 'timeout_stop', 'log_level', 'config_file']
+
 
 def rgetattr(obj, attr, *args):
     def _getattr(obj, attr):
@@ -29,16 +29,22 @@ def merge_configs(config, section, section_cfg):
     return config
 
 
+def load_config_file(config_file):
+    if os.path.exists(config_file):
+        with open(config_file, "r", encoding='utf-8') as ymlfile:
+            cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+        return cfg
+    return {}
+
+
 def parse_config(config, config_args):
     # See if there is a config file
-    if os.path.exists(config.general.config_file):
-        with open(config.general.config_file, "r", encoding='utf-8') as ymlfile:
-            cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+    cfg = load_config_file(config.general.config_file)
 
-        # Merge config together with args
-        for section in config_settings:
-            if section in cfg:
-                config = merge_configs(config, section, cfg[section])
+    # Merge config together with args
+    for section in config_settings:
+        if section in cfg:
+            config = merge_configs(config, section, cfg[section])
 
     # Merge in any class arguments
     for section in config_settings:
