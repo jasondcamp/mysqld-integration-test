@@ -1,12 +1,11 @@
 import os
 import functools
 import yaml
+import subprocess
 
 from mysqld_integration_test.version import __version__
 from mysqld_integration_test.helpers import Utils
 
-#ARGS_DATABASE = [ 'username', 'password', 'host', 'port', 'mysql_install_db_binary', 'mysqld_binary' ]
-#ARGS_GENERAL = [ 'timeout_start', 'timeout_stop', 'log_level', 'config_file']
 config_settings = {}
 config_settings['database'] = [ 'username', 'password', 'host', 'port', 'mysql_install_db_binary', 'mysqld_binary' ]
 config_settings['general'] = [ 'timeout_start', 'timeout_stop', 'log_level', 'config_file' ]
@@ -38,7 +37,8 @@ def parse_config(config, config_args):
 
         # Merge config together with args
         for section in config_settings:
-            config = merge_configs(config, section, cfg[section])
+            if section in cfg:
+                config = merge_configs(config, section, cfg[section])
 
     # Merge in any class arguments
     for section in config_settings:
@@ -68,6 +68,14 @@ class ConfigFile():
         self.database.pid_file = os.path.join(self.dirs.tmp_dir, 'mysqld.pid')
         self.database.mysqld_binary = Utils.find_program('mysqld', ['bin', 'libexec', 'sbin'])
         self.database.mysql_install_db_binary = Utils.find_program('mysql_install_db', ['bin', 'scripts'])
+
+        # Get the mysql variant and version
+        (variant, version_major, version_minor) = Utils.parse_version(
+                subprocess.check_output([self.database.mysqld_binary, '--version']).decode("utf-8"))
+        self.version = ConfigAttribute()
+        self.version.variant = variant
+        self.version.major = version_major
+        self.version.minor = version_minor
 
         self.general = ConfigAttribute()
         self.general.timeout_start = 30

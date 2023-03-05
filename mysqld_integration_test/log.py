@@ -3,7 +3,6 @@ from mysqld_integration_test.exceptions import InvalidLogLevel
 
 COLOR_OKBLUE = '\033[94m'
 COLOR_OKGREEN = '\033[92m'
-COLOR_WARNING = '\033[93m'
 COLOR_FAIL = '\033[91m'
 COLOR_ENDC = '\033[0m'
 
@@ -24,10 +23,6 @@ class _Log():
     def error(self, msg):
         if self.logger:
             self.logger.error(_colored(msg, COLOR_FAIL))
-
-    def warn(self, msg):
-        if self.logger:
-            self.logger.warn(_colored(msg, COLOR_WARNING))
 
     def success(self, msg):
         if self.logger:

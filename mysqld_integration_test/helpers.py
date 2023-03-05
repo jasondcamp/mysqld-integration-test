@@ -7,7 +7,6 @@ from mysqld_integration_test.log import logger
 BASEDIRS = ['/', '/usr', '/usr/local']
 
 class Utils():
-
     @staticmethod
     def find_program(name, subdirs):
         for basedir in BASEDIRS:
@@ -28,6 +27,7 @@ class Utils():
         sock.close()
 
         return port
+
 
     @staticmethod
     def parse_version(version_str):
