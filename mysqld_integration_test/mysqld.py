@@ -96,6 +96,7 @@ class Mysqld:
                                   f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
                                   f"--user={self.current_user}"]
             print(f"CMD LINE: {mysql_command_line}")
+            subprocess.Popen(["cat", os.path.join(self.config.dirs.etc_dir, 'my.cnf')], stdout=subprocess.STDOUT, stderr=subprocess.STDOUT)
             self.child_process = subprocess.Popen(mysql_command_line,
                                                   stdout=subprocess.STDOUT,
                                                   stderr=subprocess.STDOUT)
