@@ -58,7 +58,7 @@ class Mysqld:
         # Make base directories
         logger.debug("Creating application directories")
         os.mkdir(self.config.dirs.tmp_dir)
-        os.chmod(self.config.dirs.tmp_dir, 0o600)
+        os.chmod(self.config.dirs.tmp_dir, 0o700)
         os.mkdir(self.config.dirs.etc_dir)
         os.mkdir(self.config.dirs.data_dir)
 
@@ -69,20 +69,24 @@ class Mysqld:
         # Initialize database files
         if self.config.version.variant == "mariadb" and self.config.version.major >= 10:
             logger.debug("Initializing databases with mysql_install_db")
-            subprocess.Popen([self.config.database.mysql_install_db_binary,
+            process = subprocess.Popen([self.config.database.mysql_install_db_binary,
                               f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
                               f"--datadir={self.config.dirs.data_dir}"],
                              stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT).communicate()
+                             stderr=subprocess.STDOUT)
+            (output, error) = process.communicate()
+            logger.error(f"MySQL initialization error: {error}")
         elif self.config.version.variant == "mysql" and self.config.version.major >= 8:
             logger.debug("Initializing databases with mysqld")
             mysqld_command_line = [self.config.database.mysqld_binary,
                                    "--initialize-insecure",
                                    f"--datadir={self.config.dirs.data_dir}",
                                    f"--user={self.current_user}"]
-            subprocess.Popen(mysqld_command_line,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT).communicate()
+            process = subprocess.Popen(mysqld_command_line,
+                             stdout=logger.PIPE,
+                             stderr=logger.STDOUT)
+            (output, error) = process.communicate()
+            logger.error(f"MySQL initialization error: {error}")
 
         # Start up the database
         try:
@@ -191,7 +195,7 @@ class Mysqld:
         exec_at = datetime.now()
         while True:
             if self.child_process.poll() is not None:
-                raise RuntimeError("Failed to launch mysql binary")
+                raise RuntimeError("Failed to launch mysql binary - child process is null")
 
             if self.is_server_available():
                 break
