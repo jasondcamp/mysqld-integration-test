@@ -37,7 +37,8 @@ class Mysqld:
     def __del__(self):
         logger.debug(f"Cleaning up temp dir {self.config.dirs.base_dir}")
         # Sleep for a 1/2 sec to allow mysql to shut down
-        time.sleep(0.5)
+        while self.child_process is not None:
+            sleep(0.5)
         shutil.rmtree(self.base_dir)
 
 
@@ -45,11 +46,6 @@ class Mysqld:
         if self.child_process:
             logger.error("Error, database already running!")
             return False  # already started
-
-        # Get the mysql variant and version
-        (variant, version_major, version_minor) = Utils.parse_version(
-                subprocess.check_output([self.config.database.mysqld_binary, '--version']).decode("utf-8"))
-        logger.debug(f"VERSION: {variant} {version_major} {version_minor}")
 
         # Set the owner pid
         self.owner_pid = os.getpid()
@@ -90,7 +86,7 @@ class Mysqld:
         # MariaDB 10 requires that you log in as the user that is running the mysql instance and reset the root pw
         # Set password
         # Get the current user
-        if variant == "mariadb" and version_major >= 10:
+        if self.config.version.variant == "mariadb" and self.config.version.major >= 10:
             logger.debug("Detected MariaDB >= 10: Resetting password")
             self.reset_password_current_user()
 
