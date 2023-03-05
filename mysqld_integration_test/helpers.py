@@ -13,7 +13,7 @@ class Utils():
                 path = os.path.join(basedir, subdir, name)
                 if os.path.exists(path):
                     return path
-        raise RuntimeError(f"Command not found: {name}")
+        return None
 
     @staticmethod
     def get_unused_port():

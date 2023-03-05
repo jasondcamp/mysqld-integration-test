@@ -65,12 +65,20 @@ class Mysqld:
         self.write_mycnf()
 
         # Initialize database files
-        logger.debug("Initializing databases with mysql_install_db")
-        subprocess.Popen([self.config.database.mysql_install_db_binary,
-                          f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
-                          f"--datadir={self.config.dirs.data_dir}"],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT).communicate()
+        if self.config.version.variant == "mariadb" and self.config.version.major >= 10:
+            logger.debug("Initializing databases with mysql_install_db")
+            subprocess.Popen([self.config.database.mysql_install_db_binary,
+                              f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
+                              f"--datadir={self.config.dirs.data_dir}"],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT).communicate()
+        elif self.config.version.variant == "mysql" and self.config.version.major >= 8:
+            logger.debug("Initializing databases with mysqld")
+            subprocess.Popen([self.config.database.mysqld_binary,
+                              "--initialize-insecure",
+                              "--user=mysql"],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT).communicate()
 
         # Start up the database
         try:
@@ -94,7 +102,11 @@ class Mysqld:
         # Get the current user
         if self.config.version.variant == "mariadb" and self.config.version.major >= 10:
             logger.debug("Detected MariaDB >= 10: Resetting password")
-            self.reset_password_current_user()
+            current_user = getpass.getuser()
+            self.reset_mysqld_password(current_user)
+        elif self.config.version.variant == "mysql" and self.config.version.major >= 8:
+            logger.debug("Detected MySQL >= 8: Resetting password")
+            self.reset_mysqld_password('root')
 
         # create test database
         self.create_test_database()
@@ -109,8 +121,7 @@ class Mysqld:
 
         return instance_config
 
-    def reset_password_current_user(self):
-        current_user = getpass.getuser()
+    def reset_mysqld_password(self, current_user):
         cnx = mysql.connector.connect(user=current_user,
                                       unix_socket=self.config.database.socket_file,
                                       host=self.config.database.host,
