@@ -2,6 +2,7 @@ import atexit
 import tempfile
 import shutil
 import time
+import getpass
 import os
 import signal
 import subprocess
@@ -38,7 +39,11 @@ class Mysqld:
         # Sleep for a 1/2 sec to allow mysql to shut down
         while self.child_process is not None:
             time.sleep(0.5)
-        shutil.rmtree(self.base_dir)
+        if os.path.exists(self.base_dir):
+            shutil.rmtree(self.base_dir)
+
+    def close(self):
+        self.__del__()
 
     def run(self):
         if self.child_process:
@@ -105,7 +110,7 @@ class Mysqld:
         return instance_config
 
     def reset_password_current_user(self):
-        current_user = os.getlogin()
+        current_user = getpass.getuser()
         cnx = mysql.connector.connect(user=current_user,
                                       unix_socket=self.config.database.socket_file,
                                       host=self.config.database.host,
