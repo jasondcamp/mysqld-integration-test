@@ -23,6 +23,16 @@ def version_mysql2():
     return "/usr/libexec/mysqld  Ver 8.0.30 for Linux on x86_64 (Source distribution)"
 
 
+@pytest.fixture
+def version_wontparse():
+    return "/usr/libexec/mysqld Ver fakefake"
+
+
+@pytest.fixture
+def version_wrong():
+    return "/usr/libexec/mysqld  Ver 3.0.0 for Linux on x86_64 (Source distribution)"
+
+
 @pytest.mark.helpers_test
 def test_find_program_noexists():
     mysqld_location = Utils.find_program("mysqldfake")
@@ -108,3 +118,17 @@ def test_parse_version_mysql2_major(version_mysql2):
 def test_parse_version_mysql2_minor(version_mysql2):
     (variant, version_major, version_minor) = Utils.parse_version(version_mysql2)
     assert version_minor == '0.30'
+
+
+# Test that will fail the parse
+@pytest.mark.helpers_test
+def test_parse_version_unknown_version(version_wontparse):
+    (variant, version_major, version_minor) = Utils.parse_version(version_wontparse)
+    assert version_minor is None
+
+
+# Test that will succeed the parse but will produce bad variant
+@pytest.mark.helpers_test
+def test_parse_version_unknown_variant(version_wrong):
+    (variant, version_major, version_minor) = Utils.parse_version(version_wrong)
+    assert variant == 'unknown'
