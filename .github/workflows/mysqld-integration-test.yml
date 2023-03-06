@@ -30,8 +30,8 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Install mariadb server
         run: |
-          wget https://ftp.osuosl.org/pub/mariadb/mariadb-10.11.2/bintar-linux-systemd-x86_64/mariadb-10.11.2-linux-systemd-x86_64.tar.gz
-          tar -q xzf mariadb-10.11.2-linux-systemd-x86_64.tar.gz
+          wget -q https://ftp.osuosl.org/pub/mariadb/mariadb-10.11.2/bintar-linux-systemd-x86_64/mariadb-10.11.2-linux-systemd-x86_64.tar.gz
+          tar xzf mariadb-10.11.2-linux-systemd-x86_64.tar.gz
       - name: Install mysql server
         run: |
           sudo apt-get -y install xz-utils
