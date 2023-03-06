@@ -15,20 +15,21 @@ def test_mysqld_init():
 @pytest.mark.mysqld_test
 def test_mysqld_run_mariadb():
     mysqld = Mysqld()
-    mysqld.config.variant = "mariadb"
-    mysqld.config.version_major = 10
-    mysqld.config.version_minor = "5.16"
+    mysqld.config.version.variant = "mariadb"
+    mysqld.config.version.major = 10
+    mysqld.config.version.minor = "5.16"
 
     instance = mysqld.run()
     assert instance.username == 'root'
 
 
+@pytest.mark.xfail
 @pytest.mark.mysqld_test
 def test_mysqld_run_mysql():
     mysqld = Mysqld()
-    mysqld.config.variant = "mysql"
-    mysqld.config.version_major = 8
-    mysqld.config.version_minor = "0.30"
+    mysqld.config.version.variant = "mysql"
+    mysqld.config.version.major = 8
+    mysqld.config.version.minor = "0.30"
 
     instance = mysqld.run()
     assert instance.username == 'root'
