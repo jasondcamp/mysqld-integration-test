@@ -74,6 +74,7 @@ def test_database_pidfile_exists(mysqld_connect):
 def test_database_mysqldbinary_exists(mysqld_connect):
     assert rgetattr(mysqld_connect, 'config.database.mysqld_binary') is not None
 
+
 @pytest.mark.xfail
 @pytest.mark.settings_test
 def test_database_mysqlinstalldbbinary_exists(mysqld_connect):

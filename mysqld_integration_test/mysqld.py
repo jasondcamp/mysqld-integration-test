@@ -93,8 +93,8 @@ class Mysqld:
         try:
             logger.debug("Starting mysqld")
             mysqld_command_line = [self.config.database.mysqld_binary,
-                                  f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
-                                  f"--user={self.current_user}"]
+                                   f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
+                                   f"--user={self.current_user}"]
             self.child_process = subprocess.Popen(mysqld_command_line,
                                                   stdout=subprocess.PIPE,
                                                   stderr=subprocess.STDOUT)
