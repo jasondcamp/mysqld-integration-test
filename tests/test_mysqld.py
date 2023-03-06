@@ -12,11 +12,7 @@ def test_mysqld_init():
 
 @pytest.mark.mysqld_test
 def test_mysqld_run_mariadb():
-    mysqld = Mysqld()
-    mysqld.config.version.variant = "mariadb"
-    mysqld.config.version.major = 10
-    mysqld.config.version.minor = "5.16"
-
+    mysqld = Mysqld(mysqld_binary='mariadb-10.11.2-linux-systemd-x86_64/bin/mysqld')
     instance = mysqld.run()
     assert instance.username == 'root'
 
@@ -24,11 +20,7 @@ def test_mysqld_run_mariadb():
 @pytest.mark.xfail
 @pytest.mark.mysqld_test
 def test_mysqld_run_mysql():
-    mysqld = Mysqld()
-    mysqld.config.version.variant = "mysql"
-    mysqld.config.version.major = 8
-    mysqld.config.version.minor = "0.30"
-
+    mysqld = Mysqld(mysqld_binary='mysql-8.0.32-linux-glibc2.17-x86_64-minimal/bin/mysqld')
     instance = mysqld.run()
     assert instance.username == 'root'
 
