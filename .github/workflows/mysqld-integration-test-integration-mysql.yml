@@ -33,4 +33,4 @@ jobs:
           #        uses: lhotari/action-upterm@v1
       - name: Test with pytest
         run: |
-          pytest -s -m integration_test
+          pytest -m integration_test
