@@ -3,9 +3,6 @@ from mysqld_integration_test.settings import ConfigFile
 import os
 import pytest
 import pytest_mock
-from mock import patch
-import mock
-#from unittest.mock import patch
 
 @pytest.mark.mysqld_test
 def test_mysqld_init():
