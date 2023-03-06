@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,7 +32,7 @@ jobs:
         run: |
           wget https://ftp.osuosl.org/pub/mariadb/mariadb-10.11.2/bintar-linux-systemd-x86_64/mariadb-10.11.2-linux-systemd-x86_64.tar.gz
           tar xzf mariadb-10.11.2-linux-systemd-x86_64.tar.gz
-     - name: Install mysql server
+      - name: Install mysql server
         run: |
           apt-get -y install xz-utils
           wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.32-linux-glibc2.17-x86_64-minimal.tar.xz
