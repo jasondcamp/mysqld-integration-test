@@ -14,11 +14,6 @@ def rgetattr(obj, attr, *args):
     return functools.reduce(_getattr, [obj] + attr.split('.'))
 
 
-def rsetattr(obj, attr, val):
-    pre, _, post = attr.rpartition('.')
-    return setattr(rgetattr(obj, pre) if pre else obj, post, val)
-
-
 # Make sure config options exists and check some defaults
 @pytest.mark.settings_test
 def test_settings_test(mysqld_connect):

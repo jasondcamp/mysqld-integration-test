@@ -2,7 +2,7 @@ import os
 import re
 import socket
 
-BASEDIRS = ['/', '/usr', '/usr/local']
+BASEDIRS = ['/', '/usr', '/usr/local', '/opt/homebrew']
 
 
 class Utils():

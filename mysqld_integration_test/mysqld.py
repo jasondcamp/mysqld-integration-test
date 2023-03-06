@@ -70,10 +70,10 @@ class Mysqld:
         if self.config.version.variant == "mariadb" and self.config.version.major >= 10:
             logger.debug("Initializing databases with mysql_install_db")
             process = subprocess.Popen([self.config.database.mysql_install_db_binary,
-                              f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
-                              f"--datadir={self.config.dirs.data_dir}"],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
+                                        f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
+                                        f"--datadir={self.config.dirs.data_dir}"],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.STDOUT)
             (output, error) = process.communicate()
             logger.debug(f"MySQL initialization error: {output} {error}")
 
@@ -84,8 +84,8 @@ class Mysqld:
                                    f"--datadir={self.config.dirs.data_dir}",
                                    f"--log-error={os.path.join(self.config.dirs.tmp_dir, 'errors.log')}"]
             process = subprocess.Popen(mysqld_command_line,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.STDOUT)
             (output, error) = process.communicate()
             logger.debug(f"MySQL initialization error: {output} {error}")
 
