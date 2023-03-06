@@ -1,13 +1,14 @@
 from mysqld_integration_test import Mysqld
-from mysqld_integration_test.settings import ConfigFile
 import os
 import pytest
-import pytest_mock
+# import pytest_mock
+
 
 @pytest.mark.mysqld_test
 def test_mysqld_init():
     mysqld = Mysqld()
     assert mysqld.base_dir is not None
+
 
 @pytest.mark.mysqld_test
 def test_mysqld_run_mariadb():
