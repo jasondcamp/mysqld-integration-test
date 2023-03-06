@@ -7,13 +7,13 @@ BASEDIRS = ['/', '/usr', '/usr/local']
 
 class Utils():
     @staticmethod
-    def find_program(name, subdirs):
-        for basedir in BASEDIRS:
-            for subdir in subdirs:
-                path = os.path.join(basedir, subdir, name)
+    def find_program(name):
+        for basedir in ['usr', 'usr/local']:
+            for subdir in ['bin', 'libexec', 'sbin', 'scripts']:
+                path = os.path.join("/", basedir, subdir, name)
                 if os.path.exists(path):
                     return path
-        raise RuntimeError(f"Command not found: {name}")
+        return None
 
     @staticmethod
     def get_unused_port():

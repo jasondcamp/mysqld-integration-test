@@ -23,6 +23,7 @@ class Mysqld:
         self.child_process = None
         self.terminate_signal = signal.SIGTERM
         self.owner_pid = None
+        self.current_user = getpass.getuser()
         self.base_dir = tempfile.mkdtemp()
         self.config = ConfigFile(base_dir=self.base_dir)
 
@@ -57,6 +58,7 @@ class Mysqld:
         # Make base directories
         logger.debug("Creating application directories")
         os.mkdir(self.config.dirs.tmp_dir)
+        os.chmod(self.config.dirs.tmp_dir, 0o700)
         os.mkdir(self.config.dirs.etc_dir)
         os.mkdir(self.config.dirs.data_dir)
 
@@ -65,21 +67,37 @@ class Mysqld:
         self.write_mycnf()
 
         # Initialize database files
-        logger.debug("Initializing databases with mysql_install_db")
-        subprocess.Popen([self.config.database.mysql_install_db_binary,
-                          f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
-                          f"--datadir={self.config.dirs.data_dir}"],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT).communicate()
+        if self.config.version.variant == "mariadb" and self.config.version.major >= 10:
+            logger.debug("Initializing databases with mysql_install_db")
+            process = subprocess.Popen([self.config.database.mysql_install_db_binary,
+                              f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
+                              f"--datadir={self.config.dirs.data_dir}"],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+            (output, error) = process.communicate()
+            logger.debug(f"MySQL initialization error: {output} {error}")
+
+        elif self.config.version.variant == "mysql" and self.config.version.major >= 8:
+            logger.debug("Initializing databases with mysqld")
+            mysqld_command_line = [self.config.database.mysqld_binary,
+                                   "--initialize-insecure",
+                                   f"--datadir={self.config.dirs.data_dir}",
+                                   f"--log-error={os.path.join(self.config.dirs.tmp_dir, 'errors.log')}"]
+            process = subprocess.Popen(mysqld_command_line,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+            (output, error) = process.communicate()
+            logger.debug(f"MySQL initialization error: {output} {error}")
 
         # Start up the database
         try:
-            logger.debug("Starting mysql")
+            logger.debug("Starting mysqld")
             mysql_command_line = [self.config.database.mysqld_binary,
-                                  f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}"]
+                                  f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
+                                  f"--user={self.current_user}"]
             self.child_process = subprocess.Popen(mysql_command_line,
-                                                  stdout=subprocess.DEVNULL,
-                                                  stderr=subprocess.DEVNULL)
+                                                  stdout=subprocess.PIPE,
+                                                  stderr=subprocess.STDOUT)
         except Exception as exc:
             raise RuntimeError(f"Failed to start mysqld: {exc}")
         else:
@@ -94,7 +112,10 @@ class Mysqld:
         # Get the current user
         if self.config.version.variant == "mariadb" and self.config.version.major >= 10:
             logger.debug("Detected MariaDB >= 10: Resetting password")
-            self.reset_password_current_user()
+            self.reset_mysqld_password(self.current_user)
+        elif self.config.version.variant == "mysql" and self.config.version.major >= 8:
+            logger.debug("Detected MySQL >= 8: Resetting password")
+            self.reset_mysqld_password('root')
 
         # create test database
         self.create_test_database()
@@ -109,8 +130,7 @@ class Mysqld:
 
         return instance_config
 
-    def reset_password_current_user(self):
-        current_user = getpass.getuser()
+    def reset_mysqld_password(self, current_user):
         cnx = mysql.connector.connect(user=current_user,
                                       unix_socket=self.config.database.socket_file,
                                       host=self.config.database.host,
@@ -170,12 +190,13 @@ class Mysqld:
             my_cnf.write(f"tmpdir={self.config.dirs.tmp_dir}" + "\n")
             my_cnf.write(f"socket={self.config.database.socket_file}" + "\n")
             my_cnf.write(f"pid-file={self.config.database.pid_file}" + "\n")
+            my_cnf.write(f"secure-file-priv={self.config.dirs.tmp_dir}" + "\n")
 
     def wait_booting(self):
         exec_at = datetime.now()
         while True:
             if self.child_process.poll() is not None:
-                raise RuntimeError("Failed to launch mysql binary")
+                raise RuntimeError("Failed to launch mysql binary - child process is null")
 
             if self.is_server_available():
                 break

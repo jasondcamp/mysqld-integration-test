@@ -72,8 +72,8 @@ class ConfigFile():
         self.database.password = 'root'
         self.database.socket_file = os.path.join(self.dirs.tmp_dir, 'mysql.sock')
         self.database.pid_file = os.path.join(self.dirs.tmp_dir, 'mysqld.pid')
-        self.database.mysqld_binary = Utils.find_program('mysqld', ['bin', 'libexec', 'sbin'])
-        self.database.mysql_install_db_binary = Utils.find_program('mysql_install_db', ['bin', 'scripts'])
+        self.database.mysqld_binary = Utils.find_program('mysqld')
+        self.database.mysql_install_db_binary = Utils.find_program('mysql_install_db')
 
         # Get the mysql variant and version
         (variant, version_major, version_minor) = Utils.parse_version(
