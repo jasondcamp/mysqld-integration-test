@@ -1,13 +1,13 @@
-name: mysqld-integration-test Testing
+name: mysqld-integration-test Testing OSX
 
 on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.9"]
 
     steps:
       - uses: actions/checkout@v3
@@ -28,7 +28,7 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Install mariadb server
         run: |
-          sudo apt-get -y install mariadb-server
+          brew install mariadb
       - name: Build and install code
         run: |
           python -m build
