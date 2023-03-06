@@ -17,10 +17,9 @@ def test_mysqld_run_mariadb():
     assert instance.username == 'root'
 
 
-@pytest.mark.xfail
 @pytest.mark.mysqld_test
 def test_mysqld_run_mysql():
-    mysqld = Mysqld(mysqld_binary='mysql-8.0.32-linux-glibc2.17-x86_64-minimal/bin/mysqld')
+    mysqld = Mysqld()
     instance = mysqld.run()
     assert instance.username == 'root'
 
