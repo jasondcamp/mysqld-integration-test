@@ -17,9 +17,11 @@ def version_mariadb():
 def version_mysql():
     return "/usr/sbin/mysqld  Ver 8.0.32-0ubuntu0.20.04.2 for Linux on x86_64 ((Ubuntu))"
 
+
 @pytest.fixture
 def version_mysql2():
     return "/usr/libexec/mysqld  Ver 8.0.30 for Linux on x86_64 (Source distribution)"
+
 
 @pytest.mark.helpers_test
 def test_find_program_noexists():
@@ -86,6 +88,7 @@ def test_parse_version_mysql_minor(version_mysql):
     (variant, version_major, version_minor) = Utils.parse_version(version_mysql)
     assert version_minor == '0.32'
 
+
 # Test for MySQL variant
 @pytest.mark.helpers_test
 def test_parse_version_mysql2_variant(version_mysql2):
@@ -105,4 +108,3 @@ def test_parse_version_mysql2_major(version_mysql2):
 def test_parse_version_mysql2_minor(version_mysql2):
     (variant, version_major, version_minor) = Utils.parse_version(version_mysql2)
     assert version_minor == '0.30'
-

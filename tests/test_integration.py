@@ -67,4 +67,3 @@ def test_mysql_select_from_table(mysqld_connect):
     select_id = select_query(mysqld_connect, "SELECT id FROM pytest_test")
 
     assert select_id == 1
-

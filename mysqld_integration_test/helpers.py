@@ -28,7 +28,7 @@ class Utils():
     def parse_version(version_str):
         version_info = (re.findall(r"Ver ([0-9.]+)\-?([a-zA-Z0-9.-]+)? for", version_str))
         if version_info:
-            (version_major, version_minor) = version_info[0][0].split('.',1)
+            (version_major, version_minor) = version_info[0][0].split('.', 1)
             version_major = int(version_major)
 
             if "mariadb" in version_info[0][1].lower():
