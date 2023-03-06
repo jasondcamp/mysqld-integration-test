@@ -19,6 +19,12 @@ def version_mysql():
 
 
 @pytest.mark.helper_test
+def test_utils_class():
+   utils = Utils()
+   assert True
+
+
+@pytest.mark.helper_test
 def test_find_program():
     mysqld_location = Utils.find_program("mysqld")
     assert mysqld_location is not None
