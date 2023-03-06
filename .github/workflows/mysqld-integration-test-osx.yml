@@ -1,4 +1,4 @@
-name: mysqld-integration-test Testing
+name: mysqld-integration-test Testing OSX
 
 on: [push]
 
