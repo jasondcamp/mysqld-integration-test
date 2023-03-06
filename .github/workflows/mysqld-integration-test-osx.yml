@@ -28,7 +28,7 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Install mariadb server
         run: |
-          sudo apt-get -y install mariadb-server
+          sudo brew install mariadb
       - name: Build and install code
         run: |
           python -m build
