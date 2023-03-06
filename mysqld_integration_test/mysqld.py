@@ -92,10 +92,10 @@ class Mysqld:
         # Start up the database
         try:
             logger.debug("Starting mysqld")
-            mysql_command_line = [self.config.database.mysqld_binary,
+            mysqld_command_line = [self.config.database.mysqld_binary,
                                   f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
                                   f"--user={self.current_user}"]
-            self.child_process = subprocess.Popen(mysql_command_line,
+            self.child_process = subprocess.Popen(mysqld_command_line,
                                                   stdout=subprocess.PIPE,
                                                   stderr=subprocess.STDOUT)
         except Exception as exc:

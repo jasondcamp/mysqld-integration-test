@@ -50,6 +50,13 @@ def parse_config(config, config_args):
     for section in config_settings:
         config = merge_configs(config, section, config_args)
 
+    # Get the version of mysql in case the binary has changed
+    (variant, version_major, version_minor) = Utils.parse_version(
+            subprocess.check_output([self.database.mysqld_binary, '--version']).decode("utf-8"))
+    self.version.variant = variant
+    self.version.major = version_major
+    self.version.minor = version_minor
+
     return config
 
 
