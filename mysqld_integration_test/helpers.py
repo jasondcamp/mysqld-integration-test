@@ -31,7 +31,7 @@ class Utils():
             (version_major, version_minor) = version_info[0][0].split('.',1)
             version_major = int(version_major)
 
-            if version_info[0][1] == "MariaDB":
+            if "mariadb" in version_info[0][1].lower():
                 version_variant = "mariadb"
             elif version_major == 8:
                 version_variant = "mysql"

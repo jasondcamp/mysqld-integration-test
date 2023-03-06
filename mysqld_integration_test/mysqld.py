@@ -40,7 +40,7 @@ class Mysqld:
         # Sleep for a 1/2 sec to allow mysql to shut down
         while self.child_process is not None:
             time.sleep(0.5)
-        if os.path.exists(self.base_dir):
+        if self.config.general.cleanup_dirs and os.path.exists(self.base_dir):
             shutil.rmtree(self.base_dir)
 
     def close(self):
@@ -66,12 +66,17 @@ class Mysqld:
         logger.debug("Writing my.cnf")
         self.write_mycnf()
 
+        # Display version data
+        logger.debug(f"VERSION: {self.config.version.variant} {self.config.version.major} {self.config.version.minor}")
+
         # Initialize database files
         if self.config.version.variant == "mariadb" and self.config.version.major >= 10:
             logger.debug("Initializing databases with mysql_install_db")
-            process = subprocess.Popen([self.config.database.mysql_install_db_binary,
-                                        f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
-                                        f"--datadir={self.config.dirs.data_dir}"],
+            mysql_install_db_command_line = [self.config.database.mysql_install_db_binary,
+                                             f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
+                                             f"--datadir={self.config.dirs.data_dir}"]
+            logger.debug(f"MYSQL_INSTALL_DB_CMD: {mysql_install_db_command_line}")
+            process = subprocess.Popen(mysql_install_db_command_line,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.STDOUT)
             (output, error) = process.communicate()
@@ -83,6 +88,7 @@ class Mysqld:
                                    "--initialize-insecure",
                                    f"--datadir={self.config.dirs.data_dir}",
                                    f"--log-error={os.path.join(self.config.dirs.tmp_dir, 'errors.log')}"]
+            logger.debug(f"MYSQL_INIT_DB_CMD: {mysqld_command_line}")
             process = subprocess.Popen(mysqld_command_line,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.STDOUT)
@@ -95,6 +101,7 @@ class Mysqld:
             mysqld_command_line = [self.config.database.mysqld_binary,
                                    f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
                                    f"--user={self.current_user}"]
+            logger.debug(f"MYSQL_START_CMD: {mysqld_command_line}")
             self.child_process = subprocess.Popen(mysqld_command_line,
                                                   stdout=subprocess.PIPE,
                                                   stderr=subprocess.STDOUT)

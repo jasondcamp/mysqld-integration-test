@@ -29,8 +29,8 @@ jobs:
         run: |
           python -m build
           pip install dist/*.gz
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
+          #      - name: Setup upterm session
+          #        uses: lhotari/action-upterm@v1
       - name: Test with pytest
         run: |
           pytest -m integration_test

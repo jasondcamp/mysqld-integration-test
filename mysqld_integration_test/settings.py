@@ -95,6 +95,7 @@ class ConfigFile():
         self.general.timeout_stop = 30
         self.general.log_level = "INFO"
         self.general.config_file = 'mysqld-integration-test.cfg'
+        self.general.cleanup_dirs = True
 
 
 class ConfigInstance():
