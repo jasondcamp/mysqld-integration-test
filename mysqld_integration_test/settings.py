@@ -50,6 +50,13 @@ def parse_config(config, config_args):
     for section in config_settings:
         config = merge_configs(config, section, config_args)
 
+    # Get the version of mysql in case the binary has changed
+    (variant, version_major, version_minor) = Utils.parse_version(
+            subprocess.check_output([config.database.mysqld_binary, '--version']).decode("utf-8"))
+    config.version.variant = variant
+    config.version.major = version_major
+    config.version.minor = version_minor
+
     return config
 
 
@@ -88,6 +95,7 @@ class ConfigFile():
         self.general.timeout_stop = 30
         self.general.log_level = "INFO"
         self.general.config_file = 'mysqld-integration-test.cfg'
+        self.general.cleanup_dirs = True
 
 
 class ConfigInstance():

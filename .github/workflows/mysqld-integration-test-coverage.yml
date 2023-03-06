@@ -23,12 +23,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Install mariadb server
+        run: |
+          wget -q https://ftp.osuosl.org/pub/mariadb/mariadb-10.11.2/bintar-linux-systemd-x86_64/mariadb-10.11.2-linux-systemd-x86_64.tar.gz
+          tar xzf mariadb-10.11.2-linux-systemd-x86_64.tar.gz
       - name: Install mysql server
         run: |
-          sudo apt-get -y install mariadb-server
+          sudo apt-get -y install xz-utils
+          wget -q https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.32-linux-glibc2.17-x86_64-minimal.tar.xz
+          xz -d mysql-8.0.32-linux-glibc2.17-x86_64-minimal.tar.xz
+          tar xf mysql-8.0.32-linux-glibc2.17-x86_64-minimal.tar
       - name: Run tests
         run: |
-          coverage run -m pytest
+          coverage run -m pytest --slow
       - name: Test & publish code coverage
         uses: paambaati/codeclimate-action@v3.2.0
         env:

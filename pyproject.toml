@@ -32,7 +32,8 @@ tests = [
   "pytest-cov == 4.0.0",
   "coverage == 7.2.1",
   "mock == 5.0.1",
-  "pytest-mock == 3.10.0"
+  "pytest-mock == 3.10.0",
+  "pytest-skip-slow == 0.0.5"
 ]
 
 [project.urls]
