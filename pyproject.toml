@@ -20,7 +20,7 @@ classifiers = [
 
 dependencies = [
     "mysql-connector-python == 8.0.32",
-    "pyyaml == 5.4.1",
+    "pyyaml == 6.0.1",
 ]
 
 requires-python = ">=3.6"
