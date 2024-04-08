@@ -14,8 +14,8 @@ def test_mysqld_init():
 def test_mysqld_run_mariadb():
     mysqld = Mysqld()
     instance = mysqld.run()
-    assert instance.username == 'root'
 
+    assert instance.host == "127.0.0.1"
 
 @pytest.mark.mysqld_test
 def test_mysqld_tmpdir_delete():

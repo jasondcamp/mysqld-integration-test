@@ -26,21 +26,13 @@ jobs:
       - name: Install mariadb server from apt
         run: |
           sudo apt-get -y install mariadb-server
-      - name: Install mariadb server
+      - name: Install submodules
         run: |
-          mkdir data
-          cd data
-          wget -q https://ftp.osuosl.org/pub/mariadb/mariadb-10.11.2/bintar-linux-systemd-x86_64/mariadb-10.11.2-linux-systemd-x86_64.tar.gz
-          tar xzf mariadb-10.11.2-linux-systemd-x86_64.tar.gz
-          cd ..
-      - name: Install mysql server
-        run: |
-          sudo apt-get -y install xz-utils
-          cd data
-          wget -q https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.32-linux-glibc2.17-x86_64-minimal.tar.xz
-          xz -d mysql-8.0.32-linux-glibc2.17-x86_64-minimal.tar.xz
-          tar xf mysql-8.0.32-linux-glibc2.17-x86_64-minimal.tar
-          cd ..
+          git submodule update --init
+
+#      - name: Setup tmate session
+#        uses: mxschmitt/action-tmate@v3
+
       - name: Run tests
         run: |
           coverage run -m pytest --slow
