@@ -85,9 +85,11 @@ class Mysqld:
         elif self.config.version.variant == "mysql" and self.config.version.major >= 8:
             logger.debug("Initializing databases with mysqld")
             mysqld_command_line = [self.config.database.mysqld_binary,
+                                   f"--defaults-file={os.path.join(self.config.dirs.etc_dir, 'my.cnf')}",
                                    "--initialize-insecure",
                                    f"--datadir={self.config.dirs.data_dir}",
                                    f"--log-error={os.path.join(self.config.dirs.tmp_dir, 'errors.log')}"]
+            print(mysqld_command_line)
             logger.debug(f"MYSQL_INIT_DB_CMD: {mysqld_command_line}")
             process = subprocess.Popen(mysqld_command_line,
                                        stdout=subprocess.PIPE,
@@ -200,6 +202,7 @@ class Mysqld:
             my_cnf.write(f"socket={self.config.database.socket_file}" + "\n")
             my_cnf.write(f"pid-file={self.config.database.pid_file}" + "\n")
             my_cnf.write(f"secure-file-priv={self.config.dirs.tmp_dir}" + "\n")
+            my_cnf.write(f"user={self.current_user}" + "\n")
 
     def wait_booting(self):
         exec_at = datetime.now()
