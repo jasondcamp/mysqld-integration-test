@@ -105,4 +105,5 @@ class ConfigInstance():
         self.socket_file = args['socket_file']
 
     def __str__(self):
-        return f"ConfigInstance(host={self.host}, port={self.port}, username={self.username}, password={self.password}, socket_file={self.socket_file})"
+        return f"ConfigInstance(host={self.host}, port={self.port}, username={self.username}," \
+                "password={self.password}, socket_file={self.socket_file})"

@@ -2,6 +2,7 @@ from mysqld_integration_test import Mysqld
 import pytest
 import getpass
 
+
 @pytest.mark.slow
 @pytest.mark.integration_test
 @pytest.mark.integration_mariadb_test

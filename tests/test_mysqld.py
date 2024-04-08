@@ -1,7 +1,6 @@
 from mysqld_integration_test import Mysqld
 import os
 import pytest
-import getpass
 
 
 @pytest.mark.mysqld_test
@@ -16,6 +15,7 @@ def test_mysqld_run_mariadb():
     instance = mysqld.run()
 
     assert instance.host == "127.0.0.1"
+
 
 @pytest.mark.mysqld_test
 def test_mysqld_tmpdir_delete():
