@@ -1,7 +1,7 @@
 from mysqld_integration_test import Mysqld
 import os
 import pytest
-# import pytest_mock
+import getpass
 
 
 @pytest.mark.mysqld_test
@@ -12,13 +12,6 @@ def test_mysqld_init():
 
 @pytest.mark.mysqld_test
 def test_mysqld_run_mariadb():
-    mysqld = Mysqld()
-    instance = mysqld.run()
-    assert instance.username == 'root'
-
-
-@pytest.mark.mysqld_test
-def test_mysqld_run_mysql():
     mysqld = Mysqld()
     instance = mysqld.run()
     assert instance.username == 'root'
