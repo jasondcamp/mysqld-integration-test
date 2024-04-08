@@ -89,7 +89,6 @@ class Mysqld:
                                    "--initialize-insecure",
                                    f"--datadir={self.config.dirs.data_dir}",
                                    f"--log-error={os.path.join(self.config.dirs.tmp_dir, 'errors.log')}"]
-            print(mysqld_command_line)
             logger.debug(f"MYSQL_INIT_DB_CMD: {mysqld_command_line}")
             process = subprocess.Popen(mysqld_command_line,
                                        stdout=subprocess.PIPE,
