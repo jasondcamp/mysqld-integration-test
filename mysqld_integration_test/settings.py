@@ -2,8 +2,10 @@ import os
 import functools
 import yaml
 import subprocess
+import getpass
 
 from mysqld_integration_test.helpers import Utils
+from mysqld_integration_test.attributes import ConfigAttribute
 
 config_settings = {}
 config_settings['database'] = ['username', 'password', 'host', 'port', 'mysql_install_db_binary', 'mysqld_binary']
@@ -60,10 +62,6 @@ def parse_config(config, config_args):
     return config
 
 
-class ConfigAttribute():
-    pass
-
-
 class ConfigFile():
     def __init__(self, base_dir):
         self.dirs = ConfigAttribute()
@@ -75,8 +73,8 @@ class ConfigFile():
         self.database = ConfigAttribute()
         self.database.host = "127.0.0.1"
         self.database.port = Utils.get_unused_port()
-        self.database.username = 'root'
-        self.database.password = 'root'
+        self.database.username = getpass.getuser()
+        self.database.password = 'password'
         self.database.socket_file = os.path.join(self.dirs.tmp_dir, 'mysql.sock')
         self.database.pid_file = os.path.join(self.dirs.tmp_dir, 'mysqld.pid')
         self.database.mysqld_binary = Utils.find_program('mysqld')

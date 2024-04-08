@@ -188,6 +188,8 @@ class Mysqld:
 
         self.child_process = None
 
+        self.close()
+
     def write_mycnf(self):
         with open(os.path.join(self.config.dirs.etc_dir, 'my.cnf'), 'wt', encoding='utf-8') as my_cnf:
             my_cnf.write("[mysqld]" + "\n")

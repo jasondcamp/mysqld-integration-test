@@ -2,7 +2,6 @@ import pytest
 from mysqld_integration_test import Mysqld
 import mysql.connector
 
-
 @pytest.fixture
 def mysqld_connect(autouse=True):
     mysqld = Mysqld()
