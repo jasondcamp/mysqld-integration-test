@@ -88,6 +88,10 @@ class ConfigFile():
         self.version.major = version_major
         self.version.minor = version_minor
 
+        # If mysql commercial, username is root
+        if variant == "mysql":
+            self.database.username = 'root'
+
         self.general = ConfigAttribute()
         self.general.timeout_start = 30
         self.general.timeout_stop = 30
