@@ -38,7 +38,7 @@ def select_query(mysqld, query):
 # This test makes sure things come up end to end
 @pytest.mark.integration_test
 def test_mysqld_endtoend(mysqld_connect):
-    assert mysqld_connect.username == 'root'
+    assert mysqld_connect.password == 'root'
 
 
 @pytest.mark.integration_test
