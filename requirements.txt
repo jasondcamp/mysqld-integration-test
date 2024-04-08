@@ -1,4 +1,4 @@
-# Dev/Deployment
+build==1.0.3
 pytest>=7.2.1
 pytest-env==0.8.1
 pytest-cov==4.0.0
