@@ -30,8 +30,8 @@ jobs:
         run: |
           sudo apt-get -y install mariadb-server
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+#      - name: Setup tmate session
+#        uses: mxschmitt/action-tmate@v3
 
       - name: Build and install code
         run: |
