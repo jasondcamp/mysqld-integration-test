@@ -3,7 +3,7 @@ import re
 import socket
 
 BASEDIRS = ['/', '/usr', '/usr/local', '/opt/homebrew']
-SUBDIRS = ['bin', 'sbin', 'libexec', 'sbin', 'scripts']
+SUBDIRS = ['bin', 'sbin', 'libexec', 'scripts']
 
 
 class Utils():
