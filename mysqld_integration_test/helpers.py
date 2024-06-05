@@ -3,13 +3,14 @@ import re
 import socket
 
 BASEDIRS = ['/', '/usr', '/usr/local', '/opt/homebrew']
+SUBDIRS = ['bin', 'sbin', 'libexec', 'scripts']
 
 
 class Utils():
     @staticmethod
     def find_program(name):
-        for basedir in ['usr', 'usr/local']:
-            for subdir in ['bin', 'libexec', 'sbin', 'scripts']:
+        for basedir in BASEDIRS:
+            for subdir in SUBDIRS:
                 path = os.path.join("/", basedir, subdir, name)
                 if os.path.exists(path):
                     return path
