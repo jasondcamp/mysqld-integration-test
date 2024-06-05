@@ -33,11 +33,9 @@ jobs:
         run: |
           python -m build
           pip install dist/*.gz
-          #      - name: Setup upterm session
-          #        uses: lhotari/action-upterm@v1
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+#      - name: Setup tmate session
+#        uses: mxschmitt/action-tmate@v3
 
-#      - name: Test with pytest
-#        run: |
-#          pytest -m "not integration_test"
+      - name: Test with pytest
+        run: |
+          pytest -m "not integration_test"
