@@ -40,3 +40,4 @@ jobs:
         run: |
           pytest -m integration_test
           pytest --slow tests/test_integration_mysql.py
+
