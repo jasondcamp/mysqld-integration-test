@@ -29,12 +29,13 @@ jobs:
       - name: Install mariadb server
         run: |
           brew install mariadb
-      - name: Build and install code
+      - name: Build and install mysqld code
         run: |
           python -m build
           pip install dist/*.gz
-#      - name: Setup tmate session
-#        uses: mxschmitt/action-tmate@v3
+
+#      - name: Setup upterm session
+#        uses: lhotari/action-upterm@v1
 
       - name: Test with pytest
         run: |

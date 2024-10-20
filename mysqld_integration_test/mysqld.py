@@ -142,7 +142,9 @@ class Mysqld:
         cnx = mysql.connector.connect(user=current_user,
                                       unix_socket=self.config.database.socket_file,
                                       host=self.config.database.host,
-                                      port=self.config.database.port)
+                                      port=self.config.database.port,
+                                      collation='utf8mb4_general_ci'
+                                     )
         cursor = cnx.cursor()
         cursor.execute(f"ALTER USER '{self.config.database.username}'@'localhost' IDENTIFIED BY '{self.config.database.password}';")  # noqa: E501
         cursor.execute("FLUSH PRIVILEGES;")
@@ -154,7 +156,9 @@ class Mysqld:
         cnx = mysql.connector.connect(user=self.config.database.username,
                                       password=self.config.database.password,
                                       host=self.config.database.host,
-                                      port=self.config.database.port)
+                                      port=self.config.database.port,
+                                      collation='utf8mb4_general_ci'
+                                     )
         cursor = cnx.cursor()
         cursor.execute('CREATE DATABASE IF NOT EXISTS test')
         cnx.commit()
