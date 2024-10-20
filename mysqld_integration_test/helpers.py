@@ -2,6 +2,7 @@ import os
 import re
 import socket
 
+
 BASEDIRS = ['/', '/usr', '/usr/local', '/opt/homebrew']
 SUBDIRS = ['bin', 'sbin', 'libexec', 'scripts']
 
